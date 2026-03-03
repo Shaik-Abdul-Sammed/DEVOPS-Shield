@@ -27,20 +27,11 @@ const Navbar = ({
             role="navigation"
             aria-label="Main navigation"
         >
-            <div className="nav-header">
+            <div className={`nav-header ${collapsed ? 'collapsed' : ''}`}>
                 <div className="nav-brand">
-                    <span className="brand-icon">🛡️</span>
+                    <span className="brand-icon" title="DevOps Shield">🛡️</span>
                     {!collapsed && <span className="brand-text">DEVOPS SHIELD</span>}
                 </div>
-                <button
-                    className="nav-toggle"
-                    onClick={onToggleCollapse}
-                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                    aria-expanded={!collapsed}
-                    title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-                >
-                    <span className="toggle-icon">{collapsed ? '☰' : '«'}</span>
-                </button>
             </div>
 
             {/* Search */}
@@ -49,7 +40,7 @@ const Navbar = ({
                     <input
                         id="nav-search"
                         type="text"
-                        placeholder="Search..."
+                        placeholder="Search (Ctrl+K)..."
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         aria-label="Search navigation items"
@@ -99,6 +90,7 @@ const Navbar = ({
                         onClick={onToggleTheme}
                         aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                         title={`Toggle theme`}
+                        style={collapsed ? { margin: '0 auto' } : {}}
                     >
                         <span className="theme-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
                     </button>

@@ -42,17 +42,17 @@ const RunCard = ({ run, onAction }) => {
           type="button"
           onClick={() => onAction?.('quarantine', run)}
           className="btn-outline"
-          disabled={disableQuarantine}
+          disabled={run.status === 'QUARANTINED'}
         >
-          Quarantine
+          {run.status === 'QUARANTINED' ? 'Quarantined' : 'Quarantine'}
         </button>
         <button
           type="button"
           onClick={() => onAction?.('rollback', run)}
           className="btn-outline"
-          disabled={(run.risk?.score ?? 0) < 70}
+          disabled={run.status === 'ROLLING_BACK'}
         >
-          Trigger Rollback
+          {run.status === 'ROLLING_BACK' ? 'Rolling back...' : 'Trigger Rollback'}
         </button>
       </div>
     </article>

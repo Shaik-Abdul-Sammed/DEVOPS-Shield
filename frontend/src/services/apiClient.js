@@ -6,7 +6,7 @@ const API_URL = process.env.REACT_APP_API_URL || (
 class ApiClient {
   constructor() {
     this.baseURL = API_URL;
-    console.log('[API Client] Initialized with base URL:', this.baseURL || 'same-origin');
+    // console.log('[API Client] Initialized with base URL:', this.baseURL || 'same-origin');
   }
 
   async get(endpoint) {
@@ -28,7 +28,7 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    // Ensure endpoint starts with / and doesn't end with / unless it's just /
+    // Ensure endpoint starts with /
     let cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     if (cleanEndpoint.length > 1 && cleanEndpoint.endsWith('/')) {
       cleanEndpoint = cleanEndpoint.slice(0, -1);
@@ -47,12 +47,31 @@ class ApiClient {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorBody || response.statusText}`);
+        let errorDetail = response.statusText;
+        try {
+          const errorBody = await response.json();
+          errorDetail = errorBody.detail || errorBody.message || errorDetail;
+        } catch {
+          const text = await response.text().catch(() => '');
+          if (text) errorDetail = text;
+        }
+        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
       }
 
       return response.json();
     } catch (error) {
+      // Provide a clear, actionable message when the backend is unreachable
+      if (
+        error instanceof TypeError &&
+        (error.message.includes('Failed to fetch') ||
+          error.message.includes('NetworkError') ||
+          error.message.includes('ECONNREFUSED'))
+      ) {
+        const msg =
+          'Cannot reach the backend server. ' +
+          'Start it with: cd backend && python main.py';
+        throw new Error(msg);
+      }
       throw error;
     }
   }
@@ -108,8 +127,49 @@ class ApiClient {
   async simulateFraud() {
     return this.get("/api/simulate/");
   }
+
   async updateProfile(data) {
     return this.put("/api/auth/profile", data);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // GitHub Integration Endpoints
+  // ──────────────────────────────────────────────────────────
+
+  /** Validate a GitHub PAT and return account info */
+  async connectGitHub(credentials) {
+    return this.post("/api/v1/github/connect", credentials);
+  }
+
+  /** Fetch all repositories with risk scores */
+  async getMonitoredRepositories(credentials) {
+    return this.post("/api/v1/github/repositories", credentials);
+  }
+
+  /**
+   * Trigger a fresh security scan on a specific repository.
+   * @param {string} repoFullName  e.g. "octocat/hello-world"
+   * @param {{ token: string, username: string, org?: string }} credentials
+   */
+  async scanGitHubRepository(repoFullName, credentials) {
+    const [owner, ...rest] = repoFullName.split('/');
+    const repoName = rest.join('/');
+    return this.post(
+      `/api/v1/github/repositories/${owner}/${repoName}/scan`,
+      credentials
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Pipeline Action Endpoints
+  // ──────────────────────────────────────────────────────────
+
+  async quarantineRun(pipelineId, runId) {
+    return this.post(`/api/v1/pipelines/${pipelineId}/runs/${runId}/quarantine`);
+  }
+
+  async rollbackRun(pipelineId, runId) {
+    return this.post(`/api/v1/pipelines/${pipelineId}/runs/${runId}/rollback`);
   }
 }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import PipelineList from '../components/PipelineList';
-import PipelineDetail from '../components/PipelineDetail';
 import './Pipelines.css';
 
 const Pipelines = ({ pipelines, runsByPipeline, activePipelineId, activeRunId, onSelectPipeline, onSelectRun, onRunAction }) => {
@@ -16,12 +15,13 @@ const Pipelines = ({ pipelines, runsByPipeline, activePipelineId, activeRunId, o
         </div>
       </div>
 
-      <div className="pipelines-grid">
-        <PipelineList pipelines={pipelines} runs={runsByPipeline} onSelectPipeline={(pipeline) => onSelectPipeline?.(pipeline.id)} />
-        <PipelineDetail
-          pipeline={activePipeline}
-          runs={activeRuns}
+      <div className="pipelines-fullscreen">
+        <PipelineList
+          pipelines={pipelines}
+          runs={runsByPipeline}
+          activePipelineId={activePipelineId}
           activeRunId={activeRunId}
+          onSelectPipeline={(pipeline) => onSelectPipeline?.(pipeline.id)}
           onSelectRun={onSelectRun}
           onAction={onRunAction}
         />

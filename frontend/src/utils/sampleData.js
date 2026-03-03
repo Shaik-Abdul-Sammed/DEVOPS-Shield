@@ -389,9 +389,10 @@ export const integrations = [
   {
     id: 'github',
     name: 'GitHub',
-    status: 'Connected',
-    lastSync: '2025-12-11T14:05:00Z',
-    scopes: ['repo', 'admin:repo_hook'],
+    status: 'Disconnected',
+    lastSync: null,
+    scopes: [],
+    repositories: [],
     critical: true
   },
   {
@@ -447,15 +448,15 @@ export const policyControls = [
 
 export const authSession = {
   provider: 'GitHub',
-  account: 'secure-ai-labs',
-  status: 'Connected',
+  account: '',
+  status: 'Disconnected',
   oauthApp: 'DevOps Shield Production',
-  scopes: ['repo', 'workflow', 'read:org'],
+  scopes: [],
   leastPrivilege: true,
   pkce: true,
   encryptedStorage: 'Hashicorp Vault (HSM backed)',
   tokensExposedToFrontend: false,
-  lastVerification: '2025-12-11T15:05:00Z'
+  lastVerification: null
 };
 
 export const securityHighlights = [

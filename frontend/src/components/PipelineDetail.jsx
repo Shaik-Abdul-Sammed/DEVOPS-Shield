@@ -5,8 +5,9 @@ import RiskBadge from './RiskBadge';
 import { formatDateTime } from '../utils/dateHelpers';
 import { verifySignature } from '../utils/verifySignature';
 
-const PipelineDetail = ({ pipeline, runs = [], activeRunId, onSelectRun, onAction }) => {
+const PipelineDetail = ({ pipeline, runs = [], activeRunId, onSelectRun, onAction, inlineMode = false }) => {
   if (!pipeline) {
+    if (inlineMode) return null;
     return (
       <section className="card pipeline-detail">
         <header className="card-header"><h2>Select a pipeline</h2></header>
@@ -19,32 +20,34 @@ const PipelineDetail = ({ pipeline, runs = [], activeRunId, onSelectRun, onActio
   const proofCheck = verifySignature(selectedRun?.immutableProof || {});
 
   return (
-    <section className="pipeline-detail-premium">
-      <header className="detail-hero-card">
-        <div className="hero-info">
-          <span className="badge-premium" style={{ marginBottom: '12px', display: 'inline-block' }}>
-            {pipeline.lastStatus}
-          </span>
-          <h2>{pipeline.name}</h2>
-          <p className="muted" style={{ maxWidth: '400px' }}>{pipeline.description}</p>
-          <div className="tags" style={{ marginTop: '16px' }}>
-            {pipeline.tags?.map((tag) => <span key={tag} className="tag">{tag}</span>)}
+    <section className={`pipeline-detail-premium ${inlineMode ? 'inline-mode' : ''}`}>
+      {!inlineMode && (
+        <header className="detail-hero-card">
+          <div className="hero-info">
+            <span className="badge-premium" style={{ marginBottom: '12px', display: 'inline-block' }}>
+              {pipeline.lastStatus}
+            </span>
+            <h2>{pipeline.name}</h2>
+            <p className="muted" style={{ maxWidth: '400px' }}>{pipeline.description}</p>
+            <div className="tags" style={{ marginTop: '16px' }}>
+              {pipeline.tags?.map((tag) => <span key={tag} className="tag">{tag}</span>)}
+            </div>
           </div>
-        </div>
-        <div className="hero-viz">
-          <div className="viz-score">{pipeline.lastRiskScore}%</div>
-          <div className="viz-label">Security Posture</div>
-          <RiskBadge score={pipeline.lastRiskScore} level={pipeline.lastRiskLevel} size="md" />
-        </div>
-      </header>
+          <div className="hero-viz">
+            <div className="viz-score">{pipeline.lastRiskScore}%</div>
+            <div className="viz-label">Security Posture</div>
+            <RiskBadge score={pipeline.lastRiskScore} level={pipeline.lastRiskLevel} size="md" />
+          </div>
+        </header>
+      )}
 
-      <div className="detail-content">
-        <aside className="run-history card">
-          <h3>Run history</h3>
-          <p className="muted">Select a run to inspect every control gate and evidence trail.</p>
+      <div className="detail-content detail-grid">
+        <aside className="run-history-sidebar card glass-panel">
+          <h3>Run History</h3>
+          <p className="muted mb-2">Select a build log to inspect CI/CD events.</p>
           <ul className="run-list">
             {runs.map((run) => (
-              <li key={run.runId} className={run.runId === selectedRun?.runId ? 'active' : ''}>
+              <li key={run.runId} className={run.runId === selectedRun?.runId ? 'active-run-item' : 'run-item'}>
                 <button type="button" onClick={() => onSelectRun?.(run.runId)}>
                   <div className="run-list-top">
                     <span>{run.runId}</span>
@@ -79,11 +82,27 @@ const PipelineDetail = ({ pipeline, runs = [], activeRunId, onSelectRun, onActio
             )}
 
             <div className="evidence-links">
-              <a href={selectedRun?.evidence?.logsUrl} target="_blank" rel="noreferrer" className="btn-outline-sm">📄 View Logs</a>
-              <a href={selectedRun?.evidence?.diffUrl} target="_blank" rel="noreferrer" className="btn-outline-sm">🔀 Inspect Diff</a>
-              {selectedRun?.evidence?.scaUrl && (
-                <a href={selectedRun.evidence.scaUrl} target="_blank" rel="noreferrer" className="btn-outline-sm">🛡️ SCA Report</a>
-              )}
+              <button
+                type="button"
+                className="evidence-btn"
+                onClick={() => onAction?.('viewLogs', selectedRun)}
+              >
+                <span className="icon">📄</span> View Logs
+              </button>
+              <button
+                type="button"
+                className="evidence-btn"
+                onClick={() => onAction?.('inspectDiff', selectedRun)}
+              >
+                <span className="icon">🔀</span> Inspect Diff
+              </button>
+              <button
+                type="button"
+                className="evidence-btn"
+                onClick={() => onAction?.('scaReport', selectedRun)}
+              >
+                <span className="icon">🛡️</span> SCA Report
+              </button>
             </div>
           </section>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import './RiskAnalysis.css';
 
-const RiskAnalysis = () => {
+const RiskAnalysis = ({ addNotification }) => {
     // Mock data for Risk vs Commits correlation
     const commitData = [
         { id: '32b8e32', author: 'Abdul Sammed', lines: 364, risk: 12, date: '2026-02-27', msg: 'feat: add project chatbot assistant' },
@@ -18,6 +18,28 @@ const RiskAnalysis = () => {
         { label: 'Rogue Nodes', value: 'Very Low' }
     ];
 
+    const handleExport = () => {
+        addNotification('Preparing Risk Analysis CSV export...', 'info');
+        setTimeout(() => {
+            const header = 'Commit ID,Author,Lines,Risk Score,Date,Message\n';
+            const rows = commitData.map(c =>
+                `${c.id},"${c.author}",${c.lines},${c.risk},${c.date},"${c.msg}"`
+            ).join('\n');
+            const csvContent = header + rows;
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `risk-analysis-${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            addNotification('Risk Analysis Report downloaded.', 'success');
+        }, 1200);
+    };
+
     return (
         <div className="risk-analysis-page">
             <header className="page-header">
@@ -26,7 +48,10 @@ const RiskAnalysis = () => {
                     <p className="muted">Detailed correlation between code velocity and security exposure.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-outline">Export PDF Report</button>
+                    <button
+                        className="btn-outline"
+                        onClick={handleExport}
+                    >Export PDF Report</button>
                 </div>
             </header>
 

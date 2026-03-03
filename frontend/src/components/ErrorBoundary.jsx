@@ -8,17 +8,17 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
     this.setState({ error, errorInfo });
-    
+
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
       console.error('Error caught by boundary:', error, errorInfo);
     }
-    
+
     // In production, you could send this to an error reporting service
     // logErrorToService(error, errorInfo);
   }
@@ -37,29 +37,33 @@ class ErrorBoundary extends React.Component {
             <p className="error-message">
               We're sorry, but something unexpected happened. The development team has been notified.
             </p>
-            
-            {process.env.NODE_ENV === 'development' && (
+
+            {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="error-details">
                 <summary>Error Details (Development Only)</summary>
                 <pre className="error-stack">
                   <code>
-                    {this.state.error && this.state.error.toString()}
-                    <br /><br />
-                    {this.state.errorInfo.componentStack}
+                    {String(this.state.error)}
+                    {this.state.errorInfo ? (
+                      <>
+                        <br /><br />
+                        {this.state.errorInfo.componentStack}
+                      </>
+                    ) : null}
                   </code>
                 </pre>
               </details>
             )}
-            
+
             <div className="error-actions">
-              <button 
+              <button
                 onClick={this.handleReset}
                 className="btn-primary"
                 aria-label="Try again"
               >
                 Try Again
               </button>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="btn-outline"
                 aria-label="Reload page"
@@ -67,7 +71,7 @@ class ErrorBoundary extends React.Component {
                 Reload Page
               </button>
             </div>
-            
+
             <div className="error-help">
               <p>If this problem persists, please:</p>
               <ul>

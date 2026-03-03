@@ -5,7 +5,7 @@ import SecurityHighlights from '../components/SecurityHighlights.jsx';
 
 import apiClient from '../services/apiClient';
 
-const SettingsPage = ({ integrations = [], policies = [], authSession, securityHighlights = [], onUpdateProfile = () => { } }) => {
+const SettingsPage = ({ integrations = [], policies = [], authSession, onReconnect, onDisconnect, onManageIntegrations, securityHighlights = [], onUpdateProfile = () => { } }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [formData, setFormData] = React.useState({
     username: authSession?.account || '',
@@ -66,7 +66,7 @@ const SettingsPage = ({ integrations = [], policies = [], authSession, securityH
         </div>
       </div>
 
-      <AuthBanner session={authSession} />
+      <AuthBanner session={authSession} onReconnect={onReconnect} onDisconnect={onDisconnect} />
 
       {/* Profile Settings Section */}
       <section className="card">
@@ -132,7 +132,7 @@ const SettingsPage = ({ integrations = [], policies = [], authSession, securityH
             <h2>Integrations</h2>
             <p className="muted">Connect code hosts, CI engines, and ticketing systems.</p>
           </div>
-          <button type="button" className="btn-outline">Add integration</button>
+          <button type="button" className="btn-outline" onClick={() => onManageIntegrations?.()}>Add integration</button>
         </header>
         <table>
           <thead>

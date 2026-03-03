@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Help.css';
 
-const Help = () => {
+const Help = ({ addNotification }) => {
   const [activeFaq, setActiveFaq] = useState(null);
 
   const faqs = [
@@ -46,7 +46,10 @@ const Help = () => {
           <div className="card-icon">📂</div>
           <h3>Technical Docs</h3>
           <p className="muted">Deep dive into our architecture, integrations, and security models.</p>
-          <button className="btn-primary-sm">Browse Docs</button>
+          <button
+            className="btn-primary-sm"
+            onClick={() => addNotification('Redirecting to official documentation portal...', 'success')}
+          >Browse Docs</button>
         </section>
 
         {/* Contact Card */}
@@ -54,7 +57,10 @@ const Help = () => {
           <div className="card-icon">💬</div>
           <h3>Live Support</h3>
           <p className="muted">Need urgent help? Our security team is available 24/7 for MindSprint participants.</p>
-          <button className="btn-outline-sm">Open Ticket</button>
+          <button
+            className="btn-outline-sm"
+            onClick={() => addNotification('Support ticket creation dialog opened', 'success')}
+          >Open Ticket</button>
         </section>
       </div>
 

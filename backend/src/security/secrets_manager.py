@@ -44,6 +44,11 @@ class SecretVault:
         
         self.vault = self._load_vault()
     
+    async def initialize(self):
+        """Initialize vault (async compatible)"""
+        logger.info(f"SecretVault initialized from {self.vault_path}")
+        return True
+    
     def _load_vault(self) -> Dict[str, Any]:
         """Load vault from file"""
         if self.vault_path.exists():

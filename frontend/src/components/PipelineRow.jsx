@@ -1,7 +1,8 @@
 import React from 'react';
 import RiskBadge from './RiskBadge';
+import PipelineDetail from './PipelineDetail';
 
-const PipelineRow = ({ pipeline, onSelect }) => {
+const PipelineRow = ({ pipeline, runs, isExpanded, activeRunId, onSelect, onSelectRun, onAction }) => {
   const trendValues = pipeline.trend || [];
   const lastTrend = trendValues[trendValues.length - 1];
   const trendDirection = trendValues.length >= 2 && trendValues[trendValues.length - 1] > trendValues[trendValues.length - 2]
@@ -12,7 +13,7 @@ const PipelineRow = ({ pipeline, onSelect }) => {
 
   return (
     <div
-      className={`pipeline-row ${onSelect && pipeline.id === undefined ? 'active' : ''}`}
+      className={`pipeline-row-accordion ${isExpanded ? 'expanded-row' : ''}`}
       role="button"
       tabIndex={0}
       onClick={() => onSelect?.(pipeline)}
@@ -20,33 +21,47 @@ const PipelineRow = ({ pipeline, onSelect }) => {
         if (event.key === 'Enter') onSelect?.(pipeline);
       }}
     >
-      <div className="row-header">
+      <div className="accordion-header">
         <div className="pipeline-row-main">
           <h3>{pipeline.name}</h3>
-          <p className="muted" style={{ fontSize: '0.8rem', margin: '4px 0' }}>{pipeline.description}</p>
-        </div>
-        <span className="status-icon" title={`Status: ${pipeline.lastStatus}`}>
-          {isHealthy ? '✅' : '❌'}
-        </span>
-      </div>
-
-      <div className="row-meta">
-        <div className="row-tags">
-          {pipeline.tags?.slice(0, 2).map((tag) => (
-            <span key={tag} className="row-tag">{tag}</span>
-          ))}
-          {pipeline.tags?.length > 2 && <span className="row-tag">+{pipeline.tags.length - 2}</span>}
+          <p className="muted" style={{ fontSize: '0.85rem', margin: '4px 0', opacity: 0.8 }}>{pipeline.description}</p>
         </div>
 
-        <div className="pipeline-metrics">
+        <div className="accordion-meta-cluster">
+          <div className="row-tags">
+            {pipeline.tags?.slice(0, 2).map((tag) => (
+              <span key={tag} className="row-tag">{tag}</span>
+            ))}
+            {pipeline.tags?.length > 2 && <span className="row-tag">+{pipeline.tags.length - 2}</span>}
+          </div>
+
           <div className={`mini-trend ${trendDirection}`}>
             {trendDirection === 'up' ? '📈' : '📉'}
             <span>{Math.abs(lastTrend ?? 0)}%</span>
           </div>
+
+          <RiskBadge score={pipeline.lastRiskScore} level={pipeline.lastRiskLevel} size="sm" />
         </div>
 
-        <RiskBadge score={pipeline.lastRiskScore} level={pipeline.lastRiskLevel} size="sm" />
+        <div className="expand-indicator">
+          {isExpanded ? '▼' : '▶'}
+        </div>
       </div>
+
+      {isExpanded && (
+        <div className="accordion-body">
+          <div className="glass-panel" style={{ padding: '0', border: 'none', boxShadow: 'none', background: 'transparent' }}>
+            <PipelineDetail
+              inlineMode={true}
+              pipeline={pipeline}
+              runs={runs}
+              activeRunId={activeRunId}
+              onSelectRun={onSelectRun}
+              onAction={onAction}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

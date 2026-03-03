@@ -17,17 +17,17 @@ import logging
 from pathlib import Path
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
-from typing import Dict, Any
+from typing import Dict, Any, cast
 
 # Third-party imports
-from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
+from dotenv import load_dotenv  # type: ignore
+from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware  # type: ignore
+from fastapi.middleware.trustedhost import TrustedHostMiddleware  # type: ignore
+from fastapi.middleware.gzip import GZipMiddleware  # type: ignore
+from fastapi.responses import JSONResponse, FileResponse  # type: ignore
+from fastapi.staticfiles import StaticFiles  # type: ignore
+import uvicorn  # type: ignore
 import uuid
 from typing import List
 
@@ -55,9 +55,9 @@ except ImportError:
 
 # Security
 try:
-    from slowapi import Limiter, _rate_limit_exceeded_handler
-    from slowapi.util import get_remote_address
-    from slowapi.errors import RateLimitExceeded
+    from slowapi import Limiter, _rate_limit_exceeded_handler  # type: ignore
+    from slowapi.util import get_remote_address  # type: ignore
+    from slowapi.errors import RateLimitExceeded  # type: ignore
     SLOWAPI_AVAILABLE = True
 except ImportError:
     SLOWAPI_AVAILABLE = False
@@ -66,7 +66,7 @@ except ImportError:
 
 # Application imports
 try:
-    from src.utils.logger import get_logger
+    from src.utils.logger import get_logger  # type: ignore
     LOGGER_AVAILABLE = True
 except ImportError:
     LOGGER_AVAILABLE = False
@@ -76,7 +76,7 @@ except ImportError:
 
 
 try:
-    from src.utils.config import Config
+    from src.utils.config import Config  # type: ignore
     CONFIG_AVAILABLE = True
 except ImportError:
     CONFIG_AVAILABLE = False
@@ -87,7 +87,7 @@ except ImportError:
 
 
 try:
-    from src.utils.metrics import MetricsCollector
+    from src.utils.metrics import MetricsCollector  # type: ignore
     METRICS_AVAILABLE = True
 except ImportError:
     METRICS_AVAILABLE = False
@@ -100,9 +100,12 @@ except ImportError:
         async def start_monitoring(self):
             pass
 
+        async def stop_monitoring(self):
+            pass
+
 
 try:
-    from src.utils.database_pool import get_database_pool, DatabaseConfig
+    from src.utils.database_pool import get_database_pool, DatabaseConfig  # type: ignore
     DATABASE_POOL_AVAILABLE = True
 except ImportError:
     DATABASE_POOL_AVAILABLE = False
@@ -116,7 +119,7 @@ except ImportError:
             pass
 
 try:
-    from src.security.audit_logger import security_audit_logger
+    from src.security.audit_logger import security_audit_logger  # type: ignore
     AUDIT_LOGGER_AVAILABLE = True
 except ImportError:
     AUDIT_LOGGER_AVAILABLE = False
@@ -126,8 +129,24 @@ except ImportError:
         def log_security_event(event_type, details):
             pass
 
+        @staticmethod
+        def log_rate_limit_violation(ip, path):
+            pass
+
+        @staticmethod
+        def log_security_audit_access(ip):
+            pass
+
+        @staticmethod
+        async def get_recent_violations(limit=10):
+            return []
+
+        @staticmethod
+        async def get_blocked_ips():
+            return []
+
 try:
-    from src.security.backup_recovery import backup_manager
+    from src.security.backup_recovery import backup_manager  # type: ignore
     BACKUP_MANAGER_AVAILABLE = True
 except ImportError:
     BACKUP_MANAGER_AVAILABLE = False
@@ -137,8 +156,12 @@ except ImportError:
         async def initialize():
             pass
 
+        @staticmethod
+        async def cleanup():
+            pass
+
 try:
-    from src.security.secrets_manager import secret_vault
+    from src.security.secrets_manager import secret_vault  # type: ignore
     SECRETS_MANAGER_AVAILABLE = True
 except ImportError:
     SECRETS_MANAGER_AVAILABLE = False
@@ -155,24 +178,24 @@ config = Config()
 
 # Performance metrics (only if prometheus is available)
 if PROMETHEUS_AVAILABLE:
-    REQUEST_COUNT = Counter(
+    REQUEST_COUNT = Counter(  # type: ignore
         'http_requests_total',
         'Total HTTP requests',
         ['method', 'endpoint', 'status']
     )
-    REQUEST_DURATION = Histogram(
+    REQUEST_DURATION = Histogram(  # type: ignore
         'http_request_duration_seconds',
         'HTTP request duration'
     )
-    ACTIVE_CONNECTIONS = Gauge(
+    ACTIVE_CONNECTIONS = Gauge(  # type: ignore
         'active_connections',
         'Active connections'
     )
-    SYSTEM_MEMORY = Gauge(
+    SYSTEM_MEMORY = Gauge(  # type: ignore
         'system_memory_usage_bytes',
         'System memory usage'
     )
-    SYSTEM_CPU = Gauge(
+    SYSTEM_CPU = Gauge(  # type: ignore
         'system_cpu_usage_percent',
         'System CPU usage'
     )
@@ -185,25 +208,33 @@ else:
 
 # Rate limiting (only if slowapi is available)
 if SLOWAPI_AVAILABLE:
-    limiter = Limiter(key_func=get_remote_address)
+    limiter = Limiter(key_func=get_remote_address)  # type: ignore
 else:
     limiter = None
 
 # WebSocket Connection Manager
+
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
-    
+
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"WebSocket connected. Total connections: {len(self.active_connections)}")
-    
+        logger.info(
+            f"WebSocket connected. Total connections: "
+            f"{len(self.active_connections)}"
+        )
+
     async def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-        logger.info(f"WebSocket disconnected. Total connections: {len(self.active_connections)}")
-    
+        logger.info(
+            f"WebSocket disconnected. Total connections: "
+            f"{len(self.active_connections)}"
+        )
+
     async def broadcast(self, message: dict):
         disconnected = []
         for connection in self.active_connections:
@@ -211,9 +242,10 @@ class ConnectionManager:
                 await connection.send_json(message)
             except Exception:
                 disconnected.append(connection)
-        
+
         for conn in disconnected:
             await self.disconnect(conn)
+
 
 websocket_manager = ConnectionManager()
 
@@ -237,7 +269,7 @@ for _candidate in (_current_dir, _src_dir):
 
 # Security middleware
 try:
-    from src.security.https_config import (
+    from src.security.https_config import (  # type: ignore
         SecurityHeadersMiddleware
     )
     # Note: request_validator and ip_whitelist modules not available
@@ -245,9 +277,9 @@ try:
     RequestValidationMiddleware = None
     IPWhitelistMiddleware = None
     security_modules_loaded = True
-    logger.info("Security modules loaded successfully")
+    logger.info("Security modules loaded successfully")  # type: ignore
 except Exception as err:
-    logger.error(f"Security modules failed to load: {err}")
+    logger.error(f"Security modules failed to load: {err}")  # type: ignore
     security_modules_loaded = False
     SecurityHeadersMiddleware = None
     RequestValidationMiddleware = None
@@ -255,18 +287,18 @@ except Exception as err:
 
 # Performance monitoring middleware
 try:
-    from src.middleware.performance_monitor import (
+    from src.middleware.performance_monitor import (  # type: ignore
         PerformanceMonitorMiddleware,
         CacheMiddleware,
         get_performance_metrics
     )
-    from src.middleware.performance_monitor import (
+    from src.middleware.performance_monitor import (  # type: ignore
         reset_performance_metrics as reset_metrics
     )
     performance_modules_loaded = True
-    logger.info("Performance monitoring modules loaded successfully")
+    logger.info("Performance monitoring modules loaded successfully")  # type: ignore
 except Exception as err:
-    logger.error(f"Performance monitoring modules failed to load: {err}")
+    logger.error(f"Performance monitoring modules failed to load: {err}")  # type: ignore
     performance_modules_loaded = False
     PerformanceMonitorMiddleware = None
     CacheMiddleware = None
@@ -275,7 +307,7 @@ except Exception as err:
 
 # Initialize metrics collector (only if available)
 if METRICS_AVAILABLE:
-    metrics_collector = MetricsCollector()
+    metrics_collector = MetricsCollector()  # type: ignore
 else:
     metrics_collector = None
 
@@ -329,7 +361,11 @@ async def lifespan(app: FastAPI):
                             os.getenv("DB_QUERY_CACHE_SIZE", 1000)
                         )
                     )
-                    await get_database_pool(db_config)
+                    db_pool_init = get_database_pool(db_config)
+                    if db_pool_init and asyncio.iscoroutine(db_pool_init):
+                        await db_pool_init
+                    elif db_pool_init and hasattr(db_pool_init, '__await__'):
+                        await db_pool_init  # type: ignore
                     logger.info("Database pool initialized")
                 except Exception as err:
                     msg = "Database pool initialization failed"
@@ -399,7 +435,7 @@ app = FastAPI(
 
 # Add GZip compression middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-logger.info("GZip compression middleware added")
+logger.info("GZip compression middleware added")  # type: ignore
 
 # Custom rate limit exceeded handler (only if slowapi is available)
 if SLOWAPI_AVAILABLE and RateLimitExceeded:
@@ -427,7 +463,7 @@ if SLOWAPI_AVAILABLE and RateLimitExceeded:
                 "message": "Too many requests, please try again later",
                 "retry_after": (
                     exc.detail.retry_after
-                    if hasattr(exc, 'detail')
+                    if exc and hasattr(exc, 'detail') and exc.detail
                     else 60
                 )
             }
@@ -579,7 +615,7 @@ def include_router_safely(
             # Default fallback
             module_path = f"src.api.{router_path}"
 
-        module = __import__(module_path, fromlist=['router'])
+        module = __import__(module_path, fromlist=['router'])  # type: ignore
         router = getattr(module, 'router')
 
         app.include_router(router, prefix=prefix, tags=tags)
@@ -607,12 +643,15 @@ routers_config = [
     ("zero_trust_controller", "/api", ["zero-trust"], "Zero Trust"),
     ("blockchain_controller", "/api/blockchain", ["blockchain"], "Blockchain"),
     ("webhook_handler", "/api/webhooks", ["webhooks"], "Webhook Handler"),
+    ("github_integration", "", ["github"], "GitHub Integration"),
 ]
 
 for router_path, prefix, tags, router_name in routers_config:
     include_router_safely(router_path, prefix, tags, router_name)
 
 # Service status endpoint
+
+
 @app.get("/api/status/services")
 async def services_status():
     """Get status of all services and features"""
@@ -645,14 +684,14 @@ if limiter:
         start_time = time.time()
 
         try:
-            health_status = {
+            health_status: Dict[str, Any] = {
                 "status": "healthy",
                 "service": "DevOps Shield Backend",
                 "version": "2.0.0",
                 "environment": os.getenv("ENVIRONMENT", "development"),
                 "uptime_seconds": (
                     datetime.now(timezone.utc) -
-                    application_state["startup_time"]
+                    cast(datetime, application_state["startup_time"])
                 ).total_seconds(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "features": {
@@ -701,9 +740,9 @@ if limiter:
                     "request_count": application_state["request_count"],
                     "error_count": application_state["error_count"],
                     "error_rate": (
-                        application_state["error_count"] /
-                        application_state["request_count"] * 100
-                        if application_state["request_count"] > 0
+                        cast(int, application_state["error_count"]) /
+                        cast(int, application_state["request_count"]) * 100
+                        if cast(int, application_state["request_count"]) > 0
                         else 0
                     )
                 }
@@ -742,11 +781,12 @@ else:
 async def websocket_alerts(websocket: WebSocket):
     """Real-time alert notifications via WebSocket"""
     await websocket_manager.connect(websocket)
-    application_state["websocket_connections"] = len(websocket_manager.active_connections)
-    
+    application_state["websocket_connections"] = len(
+        websocket_manager.active_connections)
+
     try:
         while True:
-            data = await websocket.receive_text()
+            await websocket.receive_text()
             # Echo back or handle commands
             await websocket.send_json({
                 "type": "pong",
@@ -755,7 +795,8 @@ async def websocket_alerts(websocket: WebSocket):
             })
     except WebSocketDisconnect:
         await websocket_manager.disconnect(websocket)
-        application_state["websocket_connections"] = len(websocket_manager.active_connections)
+        application_state["websocket_connections"] = len(
+            websocket_manager.active_connections)
 
 # Mount static files for frontend
 frontend_build_path = Path(__file__).parent.parent / "frontend" / "build"
@@ -768,7 +809,8 @@ if frontend_build_path.exists() and static_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
     logger.info(f"Serving frontend static files from {frontend_build_path}")
 else:
-    logger.warning(f"Frontend build directory or static files not found at {frontend_build_path}")
+    logger.warning(
+        f"Frontend build directory or static files not found at {frontend_build_path}")
 
 
 @app.get("/manifest.json")
@@ -798,6 +840,8 @@ async def serve_favicon():
     return JSONResponse(status_code=404, content={"detail": "Favicon not found"})
 
 # API info endpoint (moved from root)
+
+
 @app.get("/api/info")
 async def api_info():
     """API information endpoint"""
@@ -826,6 +870,8 @@ async def api_info():
     }
 
 # Root endpoint - serve React app
+
+
 @app.get("/")
 async def serve_frontend():
     """Serve the React frontend"""
@@ -849,10 +895,15 @@ if PROMETHEUS_AVAILABLE:
         try:
             # Update system metrics if psutil is available
             if PSUTIL_AVAILABLE and psutil and SYSTEM_MEMORY and SYSTEM_CPU:
-                SYSTEM_MEMORY.set(psutil.virtual_memory().used)
-                SYSTEM_CPU.set(psutil.cpu_percent())
+                if hasattr(SYSTEM_MEMORY, 'set'):
+                    SYSTEM_MEMORY.set(psutil.virtual_memory().used)  # type: ignore
+                if hasattr(SYSTEM_CPU, 'set'):
+                    SYSTEM_CPU.set(psutil.cpu_percent())  # type: ignore
 
-            return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+            if generate_latest and callable(generate_latest):
+                return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)  # type: ignore
+            else:
+                return Response("Metrics collection not available", status_code=503)
         except Exception as err:
             logger.error(f"Metrics collection failed: {err}")
             return Response("Metrics collection failed", status_code=500)
@@ -877,7 +928,7 @@ if limiter:
             # Get database metrics
             db_metrics = {}
             try:
-                from src.utils.database_pool import db_pool
+                from src.utils.database_pool import db_pool  # type: ignore
                 if db_pool:
                     db_metrics = db_pool.get_performance_metrics()
             except Exception as err:
@@ -947,18 +998,18 @@ if limiter:
             app_metrics = {
                 "uptime_seconds": (
                     (datetime.now(timezone.utc) -
-                     application_state["startup_time"]).total_seconds()
+                     cast(datetime, application_state["startup_time"])).total_seconds()
                 ),
                 "request_count": application_state["request_count"],
                 "error_count": application_state["error_count"],
                 "error_rate": (
-                    application_state["error_count"] /
-                    application_state["request_count"] * 100
-                    if application_state["request_count"] > 0
+                    cast(int, application_state["error_count"]) /
+                    cast(int, application_state["request_count"]) * 100
+                    if cast(int, application_state["request_count"]) > 0
                     else 0
                 ),
                 "last_health_check": (
-                    application_state["last_health_check"].isoformat()
+                    cast(datetime, application_state["last_health_check"]).isoformat()
                     if application_state["last_health_check"]
                     else None
                 )
@@ -970,7 +1021,7 @@ if limiter:
             # Memory recommendations
             if (PSUTIL_AVAILABLE and
                     psutil and
-                    system_metrics.get("memory", {}).get("used_percent", 0) > 80):
+                    cast(dict, system_metrics).get("memory", {}).get("used_percent", 0) > 80):
                 recommendations.append(
                     "High memory usage detected. "
                     "Consider optimizing memory usage or increasing resources."
@@ -979,21 +1030,21 @@ if limiter:
             # CPU recommendations
             if (PSUTIL_AVAILABLE and
                     psutil and
-                    system_metrics.get("cpu", {}).get("percent", 0) > 80):
+                    cast(Dict[str, Any], system_metrics).get("cpu", {}).get("percent", 0) > 80):
                 recommendations.append(
                     "High CPU usage detected. "
                     "Consider optimizing code or scaling horizontally."
                 )
 
             # Database recommendations
-            if db_metrics.get("avg_response_time_ms", 0) > 1000:
+            if float(cast(Dict[str, Any], db_metrics).get("avg_response_time_ms", 0)) > 1000:
                 recommendations.append(
                     "Slow database queries detected. "
                     "Consider optimizing queries or adding indexes."
                 )
 
             # Error rate recommendations
-            if app_metrics.get("error_rate", 0) > 5:
+            if float(cast(float, app_metrics.get("error_rate", 0))) > 5:
                 recommendations.append(
                     "High error rate detected. Check application logs for issues."
                 )
@@ -1146,7 +1197,9 @@ if limiter:
     async def security_audit(request: Request) -> Dict[str, Any]:
         """Security audit information (admin only)"""
         # In production, add proper authentication check
-        client_ip = get_remote_address(request)
+        client_ip = "127.0.0.1"
+        if get_remote_address and callable(get_remote_address):
+            client_ip = get_remote_address(request)  # type: ignore
 
         audit_info = {
             "security_features": {
@@ -1300,12 +1353,14 @@ async def add_request_id(request: Request, call_next):
     """Add unique request ID to each request"""
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
-    
+
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
     return response
 
 # Performance monitoring middleware
+
+
 @app.middleware("http")
 async def performance_monitoring_middleware(request: Request, call_next):
     """Performance monitoring middleware"""
@@ -1336,7 +1391,8 @@ async def performance_monitoring_middleware(request: Request, call_next):
         return response
 
     except Exception:
-        application_state["error_count"] += 1
+        application_state["error_count"] = cast(
+            int, application_state["error_count"]) + 1
         if REQUEST_COUNT:
             REQUEST_COUNT.labels(
                 method=request.method,
@@ -1372,7 +1428,8 @@ async def shutdown_app():
 
         # Stop monitoring
         if performance_modules_loaded:
-            await metrics_collector.stop_monitoring()
+            if metrics_collector and hasattr(metrics_collector, 'stop_monitoring'):
+                await metrics_collector.stop_monitoring()
 
         logger.info("Graceful shutdown completed")
 
@@ -1390,7 +1447,7 @@ def create_server_config() -> Dict[str, Any]:
     """Create server configuration"""
     return {
         "host": os.getenv("HOST", "0.0.0.0"),
-        "port": int(os.getenv("PORT", 8080)),
+        "port": int(os.getenv("PORT", 8000)),
         "workers": int(os.getenv("WORKERS", 1)),
         "reload": False,  # Disable reload for stable operation
         "log_level": os.getenv("LOG_LEVEL", "info").lower(),
@@ -1418,7 +1475,7 @@ async def catch_all(full_path: str):
             status_code=404,
             content={"detail": "Not found"}
         )
-    
+
     # Serve index.html for all other routes (React Router)
     index_path = frontend_build_path / "index.html"
     if index_path.exists():

@@ -13,23 +13,62 @@ SCENARIOS = {
     "supply-chain": {
         "message": "Critical supply chain compromise detected: Unknown package version injected into private registry.",
         "risk_base": 0.85,
+        "factors": {
+            "threat": 0.9,
+            "exposure": 0.8,
+            "exploitability": 0.95,
+            "asset_value": 0.8
+        },
         "flags": ["untrusted_package", "sbom_mismatch", "runner_token_exposed"],
         "author": "external_adversary_0x",
-        "changes": ["package.json", "scripts/preinstall.sh"]
+        "changes": ["package.json", "scripts/preinstall.sh"],
+        "impact": "Potential for complete environment compromise and lateral movement.",
+        "remediation": [
+            "SHA-256 pinning",
+            "Artifact Signing",
+            "MFA Enforced Access"
+        ],
+        "automated_response": "Runner token revoked; Build quarantine initiated."
     },
     "secret-leak": {
         "message": "Security Alert: Highly sensitive PAT string detected in build logs.",
         "risk_base": 0.70,
+        "factors": {
+            "threat": 0.7,
+            "exposure": 0.9,
+            "exploitability": 0.6,
+            "asset_value": 0.7
+        },
         "flags": ["entropy_threshold_exceeded", "regex_secret_match"],
         "author": "contractor_dev_88",
-        "changes": ["tests/output.log", "config/settings.yaml"]
+        "changes": ["tests/output.log", "config/settings.yaml"],
+        "impact": "Impersonation of critical service accounts and unauthorized data access.",
+        "remediation": [
+            "Credential Rotation",
+            "OIDC Integration",
+            "Log Sanitization Rules"
+        ],
+        "automated_response": "Credential rotation triggered; SIEM alert escalated."
     },
     "rogue-runner": {
         "message": "Behavioral Anomaly: Runner executing unrecognized command patterns.",
         "risk_base": 0.92,
+        "factors": {
+            "threat": 0.95,
+            "exposure": 0.7,
+            "exploitability": 0.85,
+            "asset_value": 0.9
+        },
         "flags": ["behavioral_deviation", "kernel_fingerprint_mismatch", "unrecognized_binary"],
         "author": "system-runner-334",
-        "changes": ["/dev/shm/payload", "/etc/hosts"]
+        "changes": ["/dev/shm/payload", "/etc/hosts"],
+        "impact": "System-level privilege escalation and potential backdooring of build images.",
+        "remediation": [
+            "Hardware Identity (TPM)",
+            "Egress Filtering",
+            "Golden Image Re-sync"
+        ],
+        "automated_response": "Runner isolated; PKCE re-challenge enforced."
     }
 }
 

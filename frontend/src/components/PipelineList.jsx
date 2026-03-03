@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PipelineRow, { registerPipelineRuns } from './PipelineRow';
 
-const PipelineList = ({ pipelines = [], runs = {}, onSelectPipeline }) => {
+const PipelineList = ({ pipelines = [], runs = {}, activePipelineId, activeRunId, onSelectPipeline, onSelectRun, onAction }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [sortBy, setSortBy] = React.useState('risk');
 
@@ -24,13 +24,7 @@ const PipelineList = ({ pipelines = [], runs = {}, onSelectPipeline }) => {
   }, [pipelines, searchTerm, sortBy]);
 
   return (
-    <section className="card pipeline-list">
-      <header className="card-header">
-        <div>
-          <h2>Pipelines</h2>
-          <p className="muted" style={{ fontSize: '0.8rem' }}>Monitor the risk posture of every CI/CD workflow.</p>
-        </div>
-      </header>
+    <section className="pipeline-list">
 
       <div className="list-controls">
         <input
@@ -50,10 +44,23 @@ const PipelineList = ({ pipelines = [], runs = {}, onSelectPipeline }) => {
         </select>
       </div>
 
-      <div className="pipeline-list-body">
-        {filteredPipelines.map((pipeline) => (
-          <PipelineRow key={pipeline.id} pipeline={pipeline} onSelect={onSelectPipeline} />
-        ))}
+      <div className="pipeline-list-body accordion-mode">
+        {filteredPipelines.map((pipeline) => {
+          const isExpanded = activePipelineId === pipeline.id;
+          const pipelineRuns = runs[pipeline.id] || [];
+          return (
+            <PipelineRow
+              key={pipeline.id}
+              pipeline={pipeline}
+              runs={pipelineRuns}
+              isExpanded={isExpanded}
+              activeRunId={activeRunId}
+              onSelect={onSelectPipeline}
+              onSelectRun={onSelectRun}
+              onAction={onAction}
+            />
+          );
+        })}
         {filteredPipelines.length === 0 && (
           <div className="empty-state" style={{ padding: '40px' }}>
             <span>🔍</span>

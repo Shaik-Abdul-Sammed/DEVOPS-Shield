@@ -7,6 +7,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 15px;
+    pointer-events: none;
 }
 
 /* FAB Styling */
@@ -25,6 +26,7 @@
     transition: all var(--transition-normal);
     border: none;
     z-index: 1001;
+    pointer-events: auto;
 }
 
 .chat-fab:hover {
@@ -54,6 +56,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
+    pointer-events: auto;
 }
 
 .chat-assistant-container.active .chat-panel {

@@ -25,48 +25,6 @@ export const NAVIGATION_ITEMS = [
         shortcut: 'Ctrl+D'
     },
     {
-        id: VIEWS.USER_PROFILE,
-        label: 'User Profile',
-        icon: '👤',
-        description: 'Manage your profile',
-        shortcut: 'Ctrl+U'
-    },
-    {
-        id: VIEWS.THREAT_INTEL,
-        label: 'Threat Intel',
-        icon: '🛡️',
-        description: 'Threat intelligence feeds',
-        shortcut: 'Ctrl+T'
-    },
-    {
-        id: VIEWS.REPORTS,
-        label: 'Reports',
-        icon: '📑',
-        description: 'Reports & exports',
-        shortcut: 'Ctrl+R'
-    },
-    {
-        id: VIEWS.INTEGRATIONS,
-        label: 'Integrations',
-        icon: '🔌',
-        description: 'Third-party integrations',
-        shortcut: 'Ctrl+N'
-    },
-    {
-        id: VIEWS.HELP,
-        label: 'Help',
-        icon: '❓',
-        description: 'Help & support',
-        shortcut: 'Ctrl+H'
-    },
-    {
-        id: VIEWS.RISK_ANALYSIS,
-        label: 'Risk Analysis',
-        icon: '📈',
-        description: 'Risk vs Commits analysis',
-        shortcut: 'Ctrl+X'
-    },
-    {
         id: VIEWS.PIPELINES,
         label: 'Pipelines',
         icon: '🔄',
@@ -79,6 +37,20 @@ export const NAVIGATION_ITEMS = [
         icon: '🚨',
         description: 'Security alerts',
         shortcut: 'Ctrl+A'
+    },
+    {
+        id: VIEWS.RISK_ANALYSIS,
+        label: 'Risk Analysis',
+        icon: '📈',
+        description: 'Risk vs Commits analysis',
+        shortcut: 'Ctrl+X'
+    },
+    {
+        id: VIEWS.THREAT_INTEL,
+        label: 'Threat Intel',
+        icon: '🛡️',
+        description: 'Threat intelligence feeds',
+        shortcut: 'Ctrl+T'
     },
     {
         id: VIEWS.SIMULATION,
@@ -102,13 +74,6 @@ export const NAVIGATION_ITEMS = [
         shortcut: 'Ctrl+L'
     },
     {
-        id: VIEWS.SETTINGS,
-        label: 'Settings',
-        icon: '⚙️',
-        description: 'Configuration',
-        shortcut: 'Ctrl+,'
-    },
-    {
         id: VIEWS.GITHUB,
         label: 'GitHub Connect',
         icon: '🔗',
@@ -121,5 +86,40 @@ export const NAVIGATION_ITEMS = [
         icon: '🌍',
         description: 'Impact metrics',
         shortcut: 'Ctrl+I'
+    },
+    {
+        id: VIEWS.USER_PROFILE,
+        label: 'User Profile',
+        icon: '👤',
+        description: 'Manage your profile',
+        shortcut: 'Ctrl+U'
+    },
+    {
+        id: VIEWS.REPORTS,
+        label: 'Reports',
+        icon: '📑',
+        description: 'Reports & exports',
+        shortcut: 'Ctrl+R'
+    },
+    {
+        id: VIEWS.INTEGRATIONS,
+        label: 'Integrations',
+        icon: '🔌',
+        description: 'Third-party integrations',
+        shortcut: 'Ctrl+N'
+    },
+    {
+        id: VIEWS.HELP,
+        label: 'Help',
+        icon: '❓',
+        description: 'Help & support',
+        shortcut: 'Ctrl+H'
+    },
+    {
+        id: VIEWS.SETTINGS,
+        label: 'Settings',
+        icon: '⚙️',
+        description: 'Configuration',
+        shortcut: 'Ctrl+,'
     }
 ];
