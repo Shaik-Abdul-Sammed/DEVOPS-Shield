@@ -309,7 +309,56 @@ const App = () => {
       }
 
       setIsLoading(true);
-      // console.info("Run action", action, payload?.runId);
+      // console.info("Run action", action, payload?.runId || payload?.id);
+
+      if (action === "trigger") {
+        setTimeout(() => {
+          setIsLoading(false);
+          const pipelineId = payload.id || payload.pipelineId;
+          const now = new Date();
+          const runId = `run_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const newRun = {
+            pipelineId,
+            runId,
+            status: 'PASSED',
+            startedAt: now.toISOString(),
+            completedAt: new Date(now.getTime() + 15 * 60000).toISOString(),
+            commits: [{ sha: 'feat777', author: 'devOps-Shield', message: 'Triggered security scan' }],
+            artifacts: [{ name: 'scan-results.json', checksum: 'sha256:777' }],
+            tags: payload.tags || [],
+            risk: {
+              score: 5 + Math.floor(Math.random() * 15),
+              level: 'Safe',
+              reasons: [{ type: 'Auth', detail: 'Manual trigger authorized' }],
+              mlConfidence: 0.98,
+              ruleScore: 5,
+              trustScore: 0.95
+            },
+            evidence: {
+              logsUrl: `https://logs.devops-shield.io/${pipelineId}/${runId}`
+            },
+            immutableProof: {
+              chainHash: `0x${Math.random().toString(16).slice(2)}`,
+              txId: `0x${Math.random().toString(16).slice(2)}`,
+              signature: `SIG_${pipelineId}_${runId}`
+            },
+            stages: [
+              { id: 'source', name: 'Source Integrity', status: 'PASSED', riskScore: 2 },
+              { id: 'dependency', name: 'Dependency Sentinel', status: 'PASSED', riskScore: 4 },
+              { id: 'artifact', name: 'Artifact Hardening', status: 'PASSED', riskScore: 1 }
+            ]
+          };
+
+          setRunsState(prev => ({
+            ...prev,
+            [pipelineId]: [newRun, ...(prev[pipelineId] || [])]
+          }));
+
+          addNotification(`Success: New run triggered for pipeline ${payload.id || payload.name}`, "success");
+        }, 1500);
+        return;
+      }
 
       if (action === "quarantine" || action === "rollback") {
         apiClient[action === "quarantine" ? "quarantineRun" : "rollbackRun"](
@@ -613,18 +662,56 @@ const App = () => {
         impact: incident.message || "Automated drill impact pending review",
       };
 
-      setAlertsState((prev) => [
-        newAlert,
-        ...prev.filter((alert) => alert.id !== newAlert.id),
-      ]);
-      setLatestIncident({ ...incident, riskScore: normalizedRisk, severity });
-      setSimulationRisk(normalizedRisk);
+      if (severity === "High" || severity === "Critical") {
+        setAlertsState((prev) => [
+          newAlert,
+          ...prev.filter((alert) => alert.id !== newAlert.id),
+        ]);
+        addNotification(
+          `Simulation incident: ${incident.scenarioName}`,
+          "warning",
+          8000
+        );
+        setLatestIncident({ ...incident, riskScore: normalizedRisk, severity });
 
-      addNotification(
-        `Simulation incident: ${incident.scenarioName}`,
-        "warning",
-        8000,
-      );
+        // Add to pipelines state (Immediate UI update)
+        const pipelineId = incident.pipelineId;
+        const newRun = {
+          pipelineId,
+          runId: incident.id,
+          status: 'FAILED',
+          startedAt: incident.timestamp,
+          completedAt: incident.timestamp,
+          commits: [{ sha: incident.id.substring(4, 10), author: 'Adversary', message: `Simulated: ${incident.scenarioName}` }],
+          artifacts: [],
+          tags: ['simulated'],
+          risk: {
+            score: normalizedRisk,
+            level: severity,
+            reasons: [{ type: 'Simulation', detail: incident.message }],
+            mlConfidence: 0.99,
+            ruleScore: normalizedRisk,
+            trustScore: (100 - normalizedRisk) / 100
+          },
+          evidence: {
+            logsUrl: '#'
+          },
+          immutableProof: {
+            chainHash: '0x' + Math.random().toString(16).slice(2),
+            txId: '0x' + Math.random().toString(16).slice(2),
+            signature: `SIG_SIM_${incident.id}`
+          },
+          stages: [
+            { id: 'sim-1', name: 'Simulation Event', status: 'FAILED', riskScore: normalizedRisk, summary: incident.message }
+          ]
+        };
+
+        setRunsState(prev => ({
+          ...prev,
+          [pipelineId]: [newRun, ...(prev[pipelineId] || [])]
+        }));
+      }
+      setSimulationRisk(normalizedRisk);
     },
     [addNotification],
   );
@@ -825,7 +912,7 @@ const App = () => {
           <main className="shell-content" ref={mainContentRef} tabIndex="-1">
             <div className="content-container">
               {/* Header - Hidden for Blockchain view to avoid redundancy with its premium internal header */}
-              {view !== VIEWS.BLOCKCHAIN && (
+              {view !== VIEWS.BLOCKCHAIN && view !== VIEWS.SIMULATION && (
                 <header className="content-header">
                   <div className="header-title-container">
                     <div className="header-title">

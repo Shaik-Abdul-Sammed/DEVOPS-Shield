@@ -29,8 +29,16 @@ const PipelineDetail = ({ pipeline, runs = [], activeRunId, onSelectRun, onActio
             </span>
             <h2>{pipeline.name}</h2>
             <p className="muted" style={{ maxWidth: '400px' }}>{pipeline.description}</p>
-            <div className="tags" style={{ marginTop: '16px' }}>
+            <div className="tags" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
               {pipeline.tags?.map((tag) => <span key={tag} className="tag">{tag}</span>)}
+              <button
+                type="button"
+                className="btn-primary btn-sm"
+                style={{ marginLeft: 'auto' }}
+                onClick={() => onAction?.('trigger', pipeline)}
+              >
+                🚀 Run Pipeline
+              </button>
             </div>
           </div>
           <div className="hero-viz">

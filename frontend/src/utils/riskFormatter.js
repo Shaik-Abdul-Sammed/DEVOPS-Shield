@@ -1,9 +1,9 @@
 const levelThresholds = [
   { level: 'Safe', min: 0, max: 20 },
-  { level: 'Low', min: 20, max: 40 },
-  { level: 'Medium', min: 40, max: 60 },
-  { level: 'High', min: 60, max: 80 },
-  { level: 'Critical', min: 80, max: 100 }
+  { level: 'Low', min: 20, max: 50 },
+  { level: 'Medium', min: 50, max: 75 },
+  { level: 'High', min: 75, max: 90 },
+  { level: 'Critical', min: 90, max: 101 }
 ];
 
 export const getRiskLevel = (score) => {

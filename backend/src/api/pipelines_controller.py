@@ -9,6 +9,9 @@ logger = get_logger(__name__)
 
 # Pipeline statuses
 STATUSES = ["success", "running", "failed", "pending"]
+
+# Store simulation-triggered runs
+EXTRA_RUNS = []
 BRANCHES = ["main", "develop", "feat/security", "feat/ui-improvements", "hotfix/critical-bug"]
 STAGES = [
     {"name": "Checkout", "icon": "📥", "duration_min": 5, "duration_max": 15},
@@ -131,6 +134,28 @@ def generate_pipeline():
         "stages": stages
     }
 
+def add_simulation_run(project_id: str, scenario_name: str, risk_score: float):
+    """Add a simulation-triggered run to the pipelines list"""
+    now = datetime.now(timezone.utc)
+    project = next((p for p in PROJECTS if p["id"] == project_id), PROJECTS[0])
+    
+    run = {
+        "id": random.randint(10000, 99999),
+        "name": project["name"],
+        "status": "failed" if risk_score > 0.5 else "success",
+        "branch": "main",
+        "commit": f"{random.randint(100000, 999999):x}".lower()[:7],
+        "commitMessage": f"Simulated: {scenario_name}",
+        "author": project["owner"],
+        "startTime": now.timestamp() * 1000,
+        "duration": f"{random.randint(1, 5)}m {random.randint(0, 59)}s",
+        "progress": 100,
+        "risk_score": risk_score,
+        "stages": STAGES[:random.randint(3, 8)]  # Just some stages
+    }
+    EXTRA_RUNS.insert(0, run)
+    return run
+
 @router.get("/")
 async def get_pipelines(limit: int = Query(10, ge=1, le=100)):
     """
@@ -139,6 +164,10 @@ async def get_pipelines(limit: int = Query(10, ge=1, le=100)):
     """
     try:
         pipelines = [generate_pipeline() for _ in range(limit)]
+        
+        # Merge with extra runs if any
+        if EXTRA_RUNS:
+            pipelines = (EXTRA_RUNS + pipelines)[:limit]
         
         # Calculate metrics
         successful = sum(1 for p in pipelines if p["status"] == "success")
@@ -186,6 +215,10 @@ async def get_pipeline_history(days: int = Query(7, ge=1, le=30)):
                 pipeline["startTime"] = (date - timedelta(hours=random.randint(0, 23))).timestamp() * 1000
                 history.append(pipeline)
         
+        # Add extra runs to history too
+        if EXTRA_RUNS:
+            history = EXTRA_RUNS + history
+
         return {
             "status": "success",
             "data": {

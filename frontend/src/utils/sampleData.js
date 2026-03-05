@@ -5,7 +5,7 @@ export const pipelines = [
     tags: ['healthcare', 'ui'],
     owner: 'Blue Horizon DevSecOps',
     integrations: ['GitHub', 'Jenkins'],
-    lastRunId: 'run_20251211_1530',
+    lastRunId: 'run_20260311_1530',
     lastStatus: 'FAILED',
     lastRiskScore: 78,
     lastRiskLevel: 'High',
@@ -19,7 +19,7 @@ export const pipelines = [
     tags: ['banking', 'realtime'],
     owner: 'Critical Payments Guild',
     integrations: ['GitLab', 'ArgoCD'],
-    lastRunId: 'run_20251210_0915',
+    lastRunId: 'run_20260310_0915',
     lastStatus: 'PASSED',
     lastRiskScore: 32,
     lastRiskLevel: 'Low',
@@ -33,7 +33,7 @@ export const pipelines = [
     tags: ['civinfra', 'edge'],
     owner: 'Smart Grid Ops',
     integrations: ['GitHub', 'CircleCI'],
-    lastRunId: 'run_20251209_2200',
+    lastRunId: 'run_20260309_2200',
     lastStatus: 'FAILED',
     lastRiskScore: 91,
     lastRiskLevel: 'Critical',
@@ -47,10 +47,10 @@ export const runsByPipeline = {
   'frontend-ci': [
     {
       pipelineId: 'frontend-ci',
-      runId: 'run_20251211_1530',
+      runId: 'run_20260311_1530',
       status: 'FAILED',
-      startedAt: '2025-12-11T15:30:12Z',
-      completedAt: '2025-12-11T15:38:45Z',
+      startedAt: '2026-03-11T15:30:12Z',
+      completedAt: '2026-03-11T15:38:45Z',
       commits: [
         { sha: 'abc123', author: 'devA', message: 'Fix auth redirect loop' }
       ],
@@ -71,14 +71,14 @@ export const runsByPipeline = {
         trustScore: 0.52
       },
       evidence: {
-        logsUrl: 'https://logs.devops-shield.io/frontend-ci/run_20251211_1530',
+        logsUrl: 'https://logs.devops-shield.io/frontend-ci/run_20260311_1530',
         diffUrl: 'https://git.example.com/frontend/compare/abc123',
-        scaUrl: 'https://sca.devops-shield.io/report/frontend-ci/run_20251211_1530'
+        scaUrl: 'https://sca.devops-shield.io/report/frontend-ci/run_20260311_1530'
       },
       immutableProof: {
         chainHash: '0xabcde021ef45',
         txId: '0x123fed90871',
-        signature: 'SIG_frontend_ci_20251211'
+        signature: 'SIG_frontend_ci_20260311'
       },
       stages: [
         {
@@ -86,8 +86,8 @@ export const runsByPipeline = {
           name: 'Source Integrity',
           status: 'FAILED',
           riskScore: 82,
-          startedAt: '2025-12-11T15:30:12Z',
-          completedAt: '2025-12-11T15:31:45Z',
+          startedAt: '2026-03-11T15:30:12Z',
+          completedAt: '2026-03-11T15:31:45Z',
           summary: 'Identity anomaly detected for commit abc123',
           evidence: 'Identity model flagged unknown device fingerprint.',
           action: 'Runner quarantined'
@@ -97,8 +97,8 @@ export const runsByPipeline = {
           name: 'Dependency Sentinel',
           status: 'PASSED',
           riskScore: 18,
-          startedAt: '2025-12-11T15:31:45Z',
-          completedAt: '2025-12-11T15:33:10Z',
+          startedAt: '2026-03-11T15:31:45Z',
+          completedAt: '2026-03-11T15:33:10Z',
           summary: 'Dependencies match allow list',
           evidence: 'All hashes matched SBOM baseline.'
         },
@@ -107,8 +107,8 @@ export const runsByPipeline = {
           name: 'Artifact Hardening',
           status: 'BLOCKED',
           riskScore: 67,
-          startedAt: '2025-12-11T15:33:10Z',
-          completedAt: '2025-12-11T15:35:02Z',
+          startedAt: '2026-03-11T15:33:10Z',
+          completedAt: '2026-03-11T15:35:02Z',
           summary: 'Signing profile mismatch',
           evidence: 'PGP signature does not match recorded maintainer key.',
           action: 'Artifact quarantined'
@@ -117,10 +117,10 @@ export const runsByPipeline = {
     },
     {
       pipelineId: 'frontend-ci',
-      runId: 'run_20251210_0712',
+      runId: 'run_20260310_0712',
       status: 'PASSED',
-      startedAt: '2025-12-10T07:12:02Z',
-      completedAt: '2025-12-10T07:18:11Z',
+      startedAt: '2026-03-10T07:12:02Z',
+      completedAt: '2026-03-10T07:18:11Z',
       commits: [
         { sha: 'def456', author: 'devB', message: 'Upgrade dependency versions' }
       ],
@@ -139,13 +139,13 @@ export const runsByPipeline = {
         trustScore: 0.91
       },
       evidence: {
-        logsUrl: 'https://logs.devops-shield.io/frontend-ci/run_20251210_0712',
+        logsUrl: 'https://logs.devops-shield.io/frontend-ci/run_20260310_0712',
         diffUrl: 'https://git.example.com/frontend/compare/def456'
       },
       immutableProof: {
         chainHash: '0xbcd90321ffaa',
         txId: '0x991827364aa',
-        signature: 'SIG_frontend_ci_20251210'
+        signature: 'SIG_frontend_ci_20260310'
       },
       stages: [
         {
@@ -176,10 +176,10 @@ export const runsByPipeline = {
   'payments-cd': [
     {
       pipelineId: 'payments-cd',
-      runId: 'run_20251210_0915',
+      runId: 'run_20260310_0915',
       status: 'PASSED',
-      startedAt: '2025-12-10T09:15:00Z',
-      completedAt: '2025-12-10T09:23:32Z',
+      startedAt: '2026-03-10T09:15:00Z',
+      completedAt: '2026-03-10T09:23:32Z',
       commits: [
         { sha: 'pay991', author: 'finSec', message: 'Patch settlement rounding bug' }
       ],
@@ -198,13 +198,13 @@ export const runsByPipeline = {
         trustScore: 0.88
       },
       evidence: {
-        logsUrl: 'https://logs.devops-shield.io/payments-cd/run_20251210_0915',
+        logsUrl: 'https://logs.devops-shield.io/payments-cd/run_20260310_0915',
         diffUrl: 'https://git.example.com/payments/compare/pay991'
       },
       immutableProof: {
         chainHash: '0x98aa21def1',
         txId: '0xfed2187acd9',
-        signature: 'SIG_payments_cd_20251210'
+        signature: 'SIG_payments_cd_20260310'
       },
       stages: [
         {
@@ -234,10 +234,10 @@ export const runsByPipeline = {
   'edge-security': [
     {
       pipelineId: 'edge-security',
-      runId: 'run_20251209_2200',
+      runId: 'run_20260309_2200',
       status: 'FAILED',
-      startedAt: '2025-12-09T22:00:01Z',
-      completedAt: '2025-12-09T22:12:55Z',
+      startedAt: '2026-03-09T22:00:01Z',
+      completedAt: '2026-03-09T22:12:55Z',
       commits: [
         { sha: 'grid771', author: 'firmwareOps', message: 'Emergency patch for voltage regulator' }
       ],
@@ -257,13 +257,13 @@ export const runsByPipeline = {
         trustScore: 0.34
       },
       evidence: {
-        logsUrl: 'https://logs.devops-shield.io/edge-security/run_20251209_2200',
+        logsUrl: 'https://logs.devops-shield.io/edge-security/run_20260309_2200',
         diffUrl: 'https://git.example.com/edge/compare/grid771'
       },
       immutableProof: {
         chainHash: '0x1100aacceff',
         txId: '0x7771bb23cc',
-        signature: 'SIG_edge_security_20251209'
+        signature: 'SIG_edge_security_20260309'
       },
       stages: [
         {
@@ -299,7 +299,7 @@ export const alerts = [
     pipelineId: 'frontend-ci',
     title: 'Secrets leakage in frontend build',
     severity: 'High',
-    createdAt: '2025-12-11T15:39:10Z',
+    createdAt: '2026-03-11T15:39:10Z',
     status: 'Open',
     riskScore: 78,
     assignee: null,
@@ -311,7 +311,7 @@ export const alerts = [
     pipelineId: 'edge-security',
     title: 'Unsigned firmware detected',
     severity: 'Critical',
-    createdAt: '2025-12-09T22:13:02Z',
+    createdAt: '2026-03-09T22:13:02Z',
     status: 'Escalated',
     riskScore: 91,
     assignee: 'soc-duty',
@@ -323,7 +323,7 @@ export const alerts = [
     pipelineId: 'payments-cd',
     title: 'New dependency added outside allow list',
     severity: 'Medium',
-    createdAt: '2025-12-08T11:18:33Z',
+    createdAt: '2026-03-08T11:18:33Z',
     status: 'Resolved',
     riskScore: 48,
     assignee: 'finsec-ops',
@@ -334,27 +334,27 @@ export const alerts = [
 
 export const auditRecords = [
   {
-    id: 'audit-frontend-ci-run_20251211_1530',
+    id: 'audit-frontend-ci-run_20260311_1530',
     pipelineId: 'frontend-ci',
-    runId: 'run_20251211_1530',
-    generatedAt: '2025-12-11T15:40:00Z',
+    runId: 'run_20260311_1530',
+    generatedAt: '2026-03-11T15:40:00Z',
     immutableProof: {
       chainHash: '0xabcde021ef45',
       txId: '0x123fed90871',
-      signature: 'SIG_frontend_ci_20251211'
+      signature: 'SIG_frontend_ci_20260311'
     },
     reviewer: 'auditor-ops',
     status: 'Available'
   },
   {
-    id: 'audit-edge-security-run_20251209_2200',
+    id: 'audit-edge-security-run_20260309_2200',
     pipelineId: 'edge-security',
-    runId: 'run_20251209_2200',
-    generatedAt: '2025-12-09T22:16:00Z',
+    runId: 'run_20260309_2200',
+    generatedAt: '2026-03-09T22:16:00Z',
     immutableProof: {
       chainHash: '0x1100aacceff',
       txId: '0x7771bb23cc',
-      signature: 'SIG_edge_security_20251209'
+      signature: 'SIG_edge_security_20260309'
     },
     reviewer: 'regulator-liaison',
     status: 'Shared'
@@ -399,7 +399,7 @@ export const integrations = [
     id: 'gitlab',
     name: 'GitLab',
     status: 'Connected',
-    lastSync: '2025-12-10T17:44:00Z',
+    lastSync: '2026-03-10T17:44:00Z',
     scopes: ['api'],
     critical: true
   },
@@ -522,7 +522,7 @@ export const attackScenarios = [
 export const simulationRiskHistory = [
   { date: '2025-11-25', riskScore: 0.22, analyses: 14, alerts: 1 },
   { date: '2025-11-28', riskScore: 0.34, analyses: 18, alerts: 2 },
-  { date: '2025-12-02', riskScore: 0.28, analyses: 17, alerts: 1 },
-  { date: '2025-12-05', riskScore: 0.41, analyses: 20, alerts: 3 },
-  { date: '2025-12-07', riskScore: 0.31, analyses: 16, alerts: 2 }
+  { date: '2026-03-02', riskScore: 0.28, analyses: 17, alerts: 1 },
+  { date: '2026-03-05', riskScore: 0.41, analyses: 20, alerts: 3 },
+  { date: '2026-03-07', riskScore: 0.31, analyses: 16, alerts: 2 }
 ];

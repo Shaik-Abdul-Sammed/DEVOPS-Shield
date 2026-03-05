@@ -6,10 +6,10 @@ echo "Starting DevOps Shield Backend..."
 # Activate virtual environment if Railway created one
 if [ -d "venv" ]; then
   echo "Activating venv..."
-  source venv/bin/activate
+  source /home/bangi-abdulla/Desktop/DevOps/.venv/bin/activate
 elif [ -d ".venv" ]; then
   echo "Activating .venv..."
-  source .venv/bin/activate
+  source /home/bangi-abdulla/Desktop/DevOps/.venv/bin/activate
 fi
 
 # Ensure backend sources are importable as "src" and "backend"

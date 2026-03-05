@@ -525,19 +525,26 @@ const GitHubConnect = ({ authSession, integrations, onConnect, onDisconnect, add
                           <td className="text-right">
                             <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end" }}>
                               <button
-                                className="btn-outline btn-sm"
-                                onClick={() => setExpandedRepo(expandedRepo === repo.id ? null : repo.id)}
-                                style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
-                              >
-                                {expandedRepo === repo.id ? "▼" : "▶"} Details
-                              </button>
-                              <button
                                 className="btn-primary btn-sm"
-                                onClick={() => handleScanRepo(repo)}
+                                onClick={() => {
+                                  const isExpanding = expandedRepo !== repo.id;
+                                  setExpandedRepo(isExpanding ? repo.id : null);
+                                  if (isExpanding) {
+                                    handleScanRepo(repo);
+                                  }
+                                }}
                                 disabled={scanning}
-                                style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.5rem",
+                                  padding: "0.5rem 1rem",
+                                  fontWeight: 800,
+                                  minWidth: "140px",
+                                  justifyContent: "center"
+                                }}
                               >
-                                {scanning ? "⏳" : "⚡"} Scan
+                                {scanning ? "⏳ Scanning…" : expandedRepo === repo.id ? "Close Details" : "⚡ Scan Details"}
                               </button>
                             </div>
                           </td>

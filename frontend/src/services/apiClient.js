@@ -1,7 +1,4 @@
-// Use relative URL for production (same origin) or env variable for development
-const API_URL = process.env.REACT_APP_API_URL || (
-  process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8000'
-);
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 class ApiClient {
   constructor() {
@@ -165,11 +162,11 @@ class ApiClient {
   // ──────────────────────────────────────────────────────────
 
   async quarantineRun(pipelineId, runId) {
-    return this.post(`/api/v1/pipelines/${pipelineId}/runs/${runId}/quarantine`);
+    return this.post(`/api/pipelines/${pipelineId}/runs/${runId}/quarantine`);
   }
 
   async rollbackRun(pipelineId, runId) {
-    return this.post(`/api/v1/pipelines/${pipelineId}/runs/${runId}/rollback`);
+    return this.post(`/api/pipelines/${pipelineId}/runs/${runId}/rollback`);
   }
 }
 
