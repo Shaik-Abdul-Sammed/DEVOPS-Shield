@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+from main import app
 from src.security.auth_manager import TokenManager, UserRole
 
 client = TestClient(app)

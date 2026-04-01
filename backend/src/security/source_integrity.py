@@ -6,7 +6,7 @@ AI-driven behavioral analysis and pre-commit secret scanning for developer ident
 import os
 import re
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import json
@@ -47,7 +47,7 @@ class DeveloperProfile:
             'trusted_ips': set()
         }
         self.risk_score = 0.0
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(timezone.utc)
 
     def update_baseline(self, commit_data: Dict[str, Any]):
         """Update behavioral baseline with new commit data"""
@@ -78,7 +78,7 @@ class DeveloperProfile:
                     if ext:
                         self.behavioral_baseline['common_file_types'].add(ext)
 
-        self.last_updated = datetime.utcnow()
+        self.last_updated = datetime.now(timezone.utc)
 
     def calculate_identity_score(self, current_commit: Dict[str, Any], device_id: str, ip_address: str) -> float:
         """Calculate identity verification score based on behavioral patterns"""
@@ -228,7 +228,7 @@ class PreCommitSecretsScanner:
                 'findings': findings,
                 'risk_score': total_risk,
                 'files_scanned': len(files_changed),
-                'scan_timestamp': datetime.utcnow().isoformat()
+                'scan_timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         except Exception as e:
@@ -389,7 +389,7 @@ class SourceIntegrityManager:
         if not commit_data:
             commit_data = {
                 'commit_sha': commit_sha,
-                'timestamp': datetime.utcnow().timestamp(),
+                'timestamp': datetime.now(timezone.utc).timestamp(),
                 'files_changed': [],
                 'lines_added': 0,
                 'lines_deleted': 0
@@ -452,7 +452,7 @@ class SourceIntegrityManager:
             'reasons': reasons,
             'developer_id': developer_id,
             'commit_sha': commit_sha,
-            'verification_timestamp': datetime.utcnow().isoformat()
+            'verification_timestamp': datetime.now(timezone.utc).isoformat()
         }
 
         return result

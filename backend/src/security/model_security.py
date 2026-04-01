@@ -6,7 +6,7 @@ Data integrity checks, model poisoning detection, secure training, and validatio
 import hashlib
 import json
 import pickle
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 import numpy as np
@@ -22,7 +22,7 @@ class ModelMetadata:
     def __init__(self, model_id: str, model_version: str, training_date: datetime = None):
         self.model_id = model_id
         self.model_version = model_version
-        self.training_date = training_date or datetime.utcnow()
+        self.training_date = training_date or datetime.now(timezone.utc)
         self.model_hash = None
         self.training_data_hash = None
         self.integrity_verified = False
@@ -251,7 +251,7 @@ class PoisonDetector:
                 "extreme_values": extreme_score,
                 "pattern_anomalies": anomaly_score
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 # ===== MODEL SECURITY =====
@@ -297,7 +297,7 @@ class ModelSecurityManager:
                 "path": str(model_path),
                 "metadata_path": str(metadata_path),
                 "hash": model_hash,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             logger.info(f"Model saved: {model_metadata.model_id} v{model_metadata.model_version}")
@@ -345,7 +345,7 @@ class ModelSecurityManager:
         Comprehensive check for training data safety
         """
         report = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "data_validation": {},
             "poison_detection": {},
             "outlier_analysis": {},

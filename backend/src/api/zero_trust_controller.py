@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import sys
 from pathlib import Path
 
@@ -89,7 +89,7 @@ async def source_verify(req: SourceVerifyRequest):
     # Prepare commit data for analysis
     commit_data = {
         'commit_sha': req.commit_sha,
-        'timestamp': datetime.utcnow().timestamp(),
+        'timestamp': datetime.now(timezone.utc).timestamp(),
         'files_changed': [],  # Would be populated from actual commit data
         'lines_added': 0,
         'lines_deleted': 0,
@@ -229,7 +229,7 @@ async def artifact_verify(req: ArtifactVerifyRequest):
         'artifact_hash': req.artifact_hash,
         'signature': req.signature,
         'algorithm': 'RSA-SHA256',
-        'timestamp': datetime.utcnow().isoformat(),
+        'timestamp': datetime.now(timezone.utc).isoformat(),
         'key_id': 'default'
     }
 
@@ -284,7 +284,7 @@ async def trigger_zero_trust_pipeline(req: PipelineTriggerRequest):
 
     try:
         # Create pipeline context
-        pipeline_id = f"pipeline_{int(datetime.utcnow().timestamp())}_{req.commit_sha[:8]}"
+        pipeline_id = f"pipeline_{int(datetime.now(timezone.utc).timestamp())}_{req.commit_sha[:8]}"
         context = PipelineContext(
             pipeline_id=pipeline_id,
             repository=req.repository,

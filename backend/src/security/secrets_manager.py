@@ -5,7 +5,7 @@ Secure credential storage, automatic secret rotation, and environment management
 
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional, Any
 from pathlib import Path
 import json
@@ -83,10 +83,10 @@ class SecretVault:
             self.vault[name] = {
                 "type": secret_type.value,
                 "value": encrypted_value.decode(),
-                "created_at": datetime.utcnow().isoformat(),
-                "last_rotated": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "last_rotated": datetime.now(timezone.utc).isoformat(),
                 "rotation_interval_days": rotation_days,
-                "rotation_due": (datetime.utcnow() + timedelta(days=rotation_days)).isoformat(),
+                "rotation_due": (datetime.now(timezone.utc) + timedelta(days=rotation_days)).isoformat(),
                 "version": 1
             }
             
@@ -129,15 +129,15 @@ class SecretVault:
             rotation_history.append({
                 "version": old_secret.get("version", 1),
                 "rotated_at": old_secret.get("last_rotated"),
-                "expired_at": datetime.utcnow().isoformat()
+                "expired_at": datetime.now(timezone.utc).isoformat()
             })
             
             # Store new secret
             self.vault[name] = {
                 **old_secret,
                 "value": self.cipher.encrypt(new_value.encode()).decode(),
-                "last_rotated": datetime.utcnow().isoformat(),
-                "rotation_due": (datetime.utcnow() + timedelta(days=old_secret.get("rotation_interval_days", 90))).isoformat(),
+                "last_rotated": datetime.now(timezone.utc).isoformat(),
+                "rotation_due": (datetime.now(timezone.utc) + timedelta(days=old_secret.get("rotation_interval_days", 90))).isoformat(),
                 "version": old_secret.get("version", 1) + 1,
                 "rotation_history": rotation_history
             }
@@ -154,7 +154,7 @@ class SecretVault:
         Get secrets due for rotation
         """
         due = {}
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         for name, secret in self.vault.items():
             rotation_due = datetime.fromisoformat(secret.get("rotation_due", ""))

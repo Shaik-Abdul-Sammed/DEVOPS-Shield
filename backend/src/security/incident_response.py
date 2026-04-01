@@ -4,7 +4,7 @@ Real-time threat detection, anomaly detection, alerting, and incident response a
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List, Optional
 from enum import Enum
 from collections import defaultdict
@@ -50,7 +50,7 @@ class Incident:
         self.description = description
         self.affected_user = affected_user
         self.affected_resource = affected_resource
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(timezone.utc)
         self.status = "open"  # open, in_progress, resolved, closed
         self.assigned_to = None
         self.resolution = None
@@ -63,7 +63,7 @@ class Incident:
     
     def _generate_incident_id(self) -> str:
         """Generate unique incident ID"""
-        timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         import random
         random_suffix = random.randint(1000, 9999)
         return f"INC-{timestamp}-{random_suffix}"
@@ -73,13 +73,13 @@ class Incident:
         self.evidence.append({
             "type": evidence_type,
             "data": data,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
     
     def add_timeline_entry(self, action: str, by: str = "system"):
         """Add entry to incident timeline"""
         self.timeline.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "action": action,
             "by": by
         })
@@ -128,7 +128,7 @@ class AnomalyDetector:
             "stdev": statistics.stdev(values) if len(values) > 1 else 0,
             "min": min(values),
             "max": max(values),
-            "established_at": datetime.utcnow().isoformat()
+            "established_at": datetime.now(timezone.utc).isoformat()
         }
     
     def detect_anomaly(self, metric_name: str, current_value: float) -> tuple[bool, float]:
@@ -171,14 +171,14 @@ class AnomalyDetector:
         # Check if unusual login time
         if login_history:
             recent_hours = set(datetime.fromisoformat(login["timestamp"]).hour for login in login_history[-10:])
-            current_hour = datetime.utcnow().hour
+            current_hour = datetime.now(timezone.utc).hour
             if current_hour not in recent_hours:
                 anomalies.append(f"Unusual login time: {current_hour}:00")
                 score += 0.2
         
         # Check for rapid login attempts from different IPs
         recent_logins = [l for l in login_history if 
-                        (datetime.utcnow() - datetime.fromisoformat(l["timestamp"])) < timedelta(minutes=30)]
+                        (datetime.now(timezone.utc) - datetime.fromisoformat(l["timestamp"])) < timedelta(minutes=30)]
         if len(recent_logins) > 5:
             anomalies.append(f"Rapid login attempts: {len(recent_logins)} in 30 minutes")
             score += 0.3
@@ -186,7 +186,7 @@ class AnomalyDetector:
         return score > 0.5, {
             "anomalies": anomalies,
             "risk_score": min(1.0, score),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 # ===== SECURITY MONITORING =====
@@ -235,7 +235,7 @@ class SecurityMonitor:
     def _generate_alert(self, severity: SeverityLevel, title: str, incident_id: str = None, details: str = None):
         """Generate and dispatch alert"""
         alert = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "severity": severity.value,
             "title": title,
             "incident_id": incident_id,
@@ -257,7 +257,7 @@ class SecurityMonitor:
         
         # Track metric
         self.metrics[metric_name].append({
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "endpoint": endpoint,
             "method": method,
             "status": status_code
@@ -265,7 +265,7 @@ class SecurityMonitor:
         
         # Detect anomalies
         recent_calls = [m for m in self.metrics[metric_name] 
-                       if (datetime.utcnow() - m["timestamp"]) < timedelta(minutes=5)]
+                       if (datetime.now(timezone.utc) - m["timestamp"]) < timedelta(minutes=5)]
         
         if len(recent_calls) > 100:  # More than 100 calls in 5 minutes
             self.create_incident(
@@ -282,12 +282,12 @@ class SecurityMonitor:
             # Track failed attempt
             metric_name = f"failed_logins_{user_id}"
             self.metrics[metric_name].append({
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "ip_address": ip_address
             })
             
             recent_failures = [m for m in self.metrics[metric_name]
-                             if (datetime.utcnow() - m["timestamp"]) < timedelta(minutes=15)]
+                             if (datetime.now(timezone.utc) - m["timestamp"]) < timedelta(minutes=15)]
             
             if len(recent_failures) >= 5:
                 self.create_incident(
@@ -315,12 +315,12 @@ class SecurityMonitor:
         
         if status == "rejected":
             self.metrics[metric_name].append({
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "reason": reason
             })
             
             recent_failures = [m for m in self.metrics[metric_name]
-                             if (datetime.utcnow() - m["timestamp"]) < timedelta(minutes=10)]
+                             if (datetime.now(timezone.utc) - m["timestamp"]) < timedelta(minutes=10)]
             
             if len(recent_failures) >= 3:
                 self.create_incident(
@@ -410,7 +410,7 @@ class IncidentResponsePlaybook:
         return {
             "incident_id": incident.id,
             "response_steps": response_steps,
-            "initiated_at": datetime.utcnow().isoformat()
+            "initiated_at": datetime.now(timezone.utc).isoformat()
         }
     
     @staticmethod
@@ -447,7 +447,7 @@ class IncidentResponsePlaybook:
         return {
             "incident_id": incident.id,
             "response_steps": response_steps,
-            "initiated_at": datetime.utcnow().isoformat()
+            "initiated_at": datetime.now(timezone.utc).isoformat()
         }
     
     @staticmethod
@@ -483,7 +483,7 @@ class IncidentResponsePlaybook:
         return {
             "incident_id": incident.id,
             "response_steps": response_steps,
-            "initiated_at": datetime.utcnow().isoformat()
+            "initiated_at": datetime.now(timezone.utc).isoformat()
         }
 
 # ===== GLOBAL INSTANCES =====

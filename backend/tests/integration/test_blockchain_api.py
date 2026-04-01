@@ -11,7 +11,7 @@ from datetime import datetime
 @pytest.fixture
 def client():
     """Create test client for FastAPI app"""
-    from backend.main import app
+    from main import app
     return TestClient(app)
 
 

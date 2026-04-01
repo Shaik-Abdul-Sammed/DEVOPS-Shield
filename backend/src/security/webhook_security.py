@@ -9,7 +9,7 @@ import json
 import re
 import html
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 from threading import Lock
 from fastapi import HTTPException
@@ -370,7 +370,7 @@ class WebhookRateLimiter:
     
     def is_allowed(self, webhook_source: str, signature: str = None) -> bool:
         """Check if webhook is allowed"""
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         cutoff_time = current_time - timedelta(minutes=1)
         
         # Check blacklist

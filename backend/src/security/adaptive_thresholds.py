@@ -5,7 +5,7 @@ Machine learning-based threshold adaptation to reduce false positives and optimi
 
 import json
 import statistics
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 from src.utils.logger import get_logger
@@ -121,7 +121,7 @@ class AdaptiveThresholdManager:
             predicted_outcome: What the system predicted
         """
         event = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'event_type': event_type,
             'component': component,
             'data': data,
@@ -238,7 +238,7 @@ class AdaptiveThresholdManager:
 
     def get_performance_metrics(self, component: str = None, hours: int = 24) -> Dict[str, Any]:
         """Get performance metrics for monitoring"""
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
 
         # Filter events
         relevant_events = [

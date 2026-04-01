@@ -4,7 +4,7 @@ Coordinates the complete DevOps Shield workflow from commit to deployment
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from src.utils.logger import get_logger
 from .source_integrity import SourceIntegrityManager
@@ -35,7 +35,7 @@ class PipelineContext:
         # Overall status
         self.status = "initialized"
         self.error_message = None
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         self.end_time = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -145,7 +145,7 @@ class ZeroTrustOrchestrator:
             # Prepare commit data (in production, this would come from git/webhook)
             commit_data = {
                 'commit_sha': context.commit_sha,
-                'timestamp': datetime.utcnow().timestamp(),
+                'timestamp': datetime.now(timezone.utc).timestamp(),
                 'files_changed': ['src/main.py', 'requirements.txt'],  # Mock data
                 'lines_added': 150,
                 'lines_deleted': 20,
@@ -271,7 +271,7 @@ class ZeroTrustOrchestrator:
                     'step': step_info['name'],
                     'command': step_info['command'],
                     'status': 'success',
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 })
 
                 logger.info(f"✅ Build step completed: {step_info['name']}")
@@ -325,7 +325,7 @@ class ZeroTrustOrchestrator:
                 context.ledger_records.append({
                     'type': 'pipeline_completion',
                     'blockchain_tx': blockchain_receipt.get('transaction_hash'),
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 })
 
             hardened = hardening_result.get('final_status') == 'hardened'
@@ -340,7 +340,7 @@ class ZeroTrustOrchestrator:
 
     def _finalize_pipeline(self, context: PipelineContext) -> Dict[str, Any]:
         """Finalize pipeline execution"""
-        context.end_time = datetime.utcnow()
+        context.end_time = datetime.now(timezone.utc)
 
         result = context.to_dict()
 
@@ -376,7 +376,7 @@ class ZeroTrustOrchestrator:
             'active_pipelines': len(self.active_pipelines),
             'ledger_stats': self.blockchain_ledger.get_ledger_stats(),
             'hardener_stats': self.artifact_hardener.get_hardening_stats(),
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
     async def handle_webhook_trigger(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -396,7 +396,7 @@ class ZeroTrustOrchestrator:
             developer = webhook_data.get('pusher', {}).get('name', 'unknown')
 
             # Generate pipeline ID
-            pipeline_id = f"pipeline_{int(datetime.utcnow().timestamp())}_{commit_sha[:8]}"
+            pipeline_id = f"pipeline_{int(datetime.now(timezone.utc).timestamp())}_{commit_sha[:8]}"
 
             # Create pipeline context
             context = PipelineContext(

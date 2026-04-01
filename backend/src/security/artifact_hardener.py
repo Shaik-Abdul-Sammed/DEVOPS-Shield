@@ -9,7 +9,7 @@ import os
 import subprocess
 import tempfile
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import sys
@@ -48,7 +48,7 @@ class CryptographicSigner:
             artifact_hash = self._calculate_file_hash(artifact_path)
 
             # Create signature payload
-            timestamp = datetime.utcnow().isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()
             signature_payload = f"{artifact_hash}:{timestamp}:{key_id or 'default'}"
 
             # Sign the payload (simplified - in production use proper crypto libraries)
@@ -159,7 +159,7 @@ class IsolatedEnvironment:
         """
         try:
             # Generate unique container name
-            timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             self.container_name = f"devops_shield_verify_{timestamp}"
 
             # Docker run command with isolation
@@ -366,7 +366,7 @@ class MalwareScanner:
                 'findings': findings,
                 'risk_score': min(risk_score, 1.0),
                 'is_malicious': risk_score >= 0.7,
-                'scan_timestamp': datetime.utcnow().isoformat()
+                'scan_timestamp': datetime.now(timezone.utc).isoformat()
             }
 
         except Exception as e:
@@ -539,7 +539,7 @@ class ArtifactHardener:
         elif artifact_name.endswith('.zip'):
             return "cd /tmp && unzip -l artifact > /dev/null && echo 'Valid archive'"
         elif artifact_name.endswith(('.deb', '.rpm')):
-            return "cd /tmp && file artifact | grep -q 'Debian package\|RPM' && echo 'Valid package'"
+            return r"cd /tmp && file artifact | grep -q 'Debian package\|RPM' && echo 'Valid package'"
         elif artifact_name.endswith('.jar'):
             return "cd /tmp && java -jar artifact --version 2>/dev/null || echo 'Valid JAR'"
         else:
@@ -552,7 +552,7 @@ class ArtifactHardener:
             'signer_status': 'available' if self.signer else 'unavailable',
             'environment_available': 'docker' if self._is_docker_available() else 'unavailable',
             'malware_scanner': 'active',
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
     def _is_docker_available(self) -> bool:

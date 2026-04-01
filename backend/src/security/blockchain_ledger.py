@@ -6,7 +6,7 @@ Implements immutable hash chains for build step verification and tampering detec
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 import sys
@@ -33,7 +33,7 @@ class BuildStep:
         self.inputs = inputs or {}
         self.outputs = outputs or {}
         self.metadata = metadata or {}
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
         self.step_hash = None
         self.previous_step_hash = None
 
@@ -73,7 +73,7 @@ class BuildPipeline:
         self.repository = repository
         self.commit_sha = commit_sha
         self.steps: List[BuildStep] = []
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         self.end_time = None
         self.final_hash = None
         self.blockchain_tx = None
@@ -91,7 +91,7 @@ class BuildPipeline:
 
     def complete_pipeline(self, final_status: str = 'completed'):
         """Complete the pipeline and calculate final hash"""
-        self.end_time = datetime.utcnow()
+        self.end_time = datetime.now(timezone.utc)
         self.status = final_status
 
         # Calculate final pipeline hash (hash of all step hashes)
@@ -239,7 +239,7 @@ class BlockchainLedger:
 
             data = {
                 'completed_pipelines': [p.to_dict() for p in self.completed_pipelines.values()],
-                'last_updated': datetime.utcnow().isoformat()
+                'last_updated': datetime.now(timezone.utc).isoformat()
             }
 
             with open(self.ledger_file, 'w') as f:
@@ -408,7 +408,7 @@ class BlockchainLedger:
             'pipeline_id': pipeline.pipeline_id,
             'repository': pipeline.repository,
             'issues': issues,
-            'timestamp': datetime.utcnow().timestamp(),
+            'timestamp': datetime.now(timezone.utc).timestamp(),
             'risk_score': 1.0
         }
 
@@ -426,5 +426,5 @@ class BlockchainLedger:
             'tampered_pipelines': tampered_pipelines,
             'tampering_rate': tampered_pipelines / total_pipelines if total_pipelines > 0 else 0,
             'blockchain_connected': self.blockchain_service.connected,
-            'last_updated': datetime.utcnow().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }

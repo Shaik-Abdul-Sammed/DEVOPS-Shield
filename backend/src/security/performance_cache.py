@@ -6,7 +6,7 @@ Implements intelligent caching to reduce latency and improve performance
 import asyncio
 import time
 from typing import Dict, Any, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 from src.utils.logger import get_logger
@@ -19,19 +19,19 @@ class CacheEntry:
     def __init__(self, key: str, value: Any, ttl_seconds: int = 300):
         self.key = key
         self.value = value
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(timezone.utc)
         self.ttl_seconds = ttl_seconds
         self.access_count = 0
-        self.last_accessed = datetime.utcnow()
+        self.last_accessed = datetime.now(timezone.utc)
 
     def is_expired(self) -> bool:
         """Check if cache entry has expired"""
-        return (datetime.utcnow() - self.created_at).total_seconds() > self.ttl_seconds
+        return (datetime.now(timezone.utc) - self.created_at).total_seconds() > self.ttl_seconds
 
     def access(self):
         """Record access to this entry"""
         self.access_count += 1
-        self.last_accessed = datetime.utcnow()
+        self.last_accessed = datetime.now(timezone.utc)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization"""
@@ -242,7 +242,7 @@ class PerformanceOptimizer:
             }
 
         breaker = self.circuit_breakers[operation]
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Check if circuit should be closed (recovery timeout passed)
         if breaker['state'] == 'open':
@@ -276,7 +276,7 @@ class PerformanceOptimizer:
             'cache_stats': self.cache.get_stats(),
             'circuit_breakers': self.circuit_breakers,
             'active_tasks': len(self.async_manager.active_tasks),
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
 # Global performance optimizer instance

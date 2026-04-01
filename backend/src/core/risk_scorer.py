@@ -7,10 +7,11 @@ class RiskScorer:
     def __init__(self):
         # Risk weights for different factors
         self.weights = {
-            "ai_anomaly_score": 0.4,
-            "rule_violations": 0.3,
+            "ai_anomaly_score": 0.35,
+            "rule_violations": 0.25,
             "commit_frequency": 0.1,
-            "contributor_trust": 0.2
+            "contributor_trust": 0.15,
+            "github_security": 0.15
         }
 
     def calculate_risk_score(self, ai_results, rule_violations, repo_data):
@@ -21,7 +22,7 @@ class RiskScorer:
             ai_contribution = min(ai_score, 1.0) * self.weights["ai_anomaly_score"]
 
             # Rule violations contribution
-            rule_score = min(len(rule_violations) / 10.0, 1.0)  # Normalize by max expected violations
+            rule_score = min(len(rule_violations) / 10.0, 1.0)
             rule_contribution = rule_score * self.weights["rule_violations"]
 
             # Commit frequency analysis
@@ -30,9 +31,20 @@ class RiskScorer:
 
             # Contributor trust score
             trust_score = self._calculate_contributor_trust(repo_data)
-            trust_contribution = (1 - trust_score) * self.weights["contributor_trust"]  # Invert: low trust = high risk
+            trust_contribution = (1 - trust_score) * self.weights["contributor_trust"]
 
-            total_score = ai_contribution + rule_contribution + freq_contribution + trust_contribution
+            # GitHub Security Score integration
+            from ..services.github_scoring_service import github_scoring_service
+            repo_name_full = repo_data.get("full_name", repo_data.get("name", "unknown"))
+            parts = repo_name_full.split("/")
+            username = parts[0] if len(parts) > 1 else "unknown"
+            repo_name = parts[1] if len(parts) > 1 else repo_name_full
+            
+            github_score_data = github_scoring_service.calculate_repo_score(username, repo_name)
+            github_sec_score = github_score_data["scores"]["overall"]
+            github_contribution = (1 - github_sec_score) * self.weights["github_security"]
+
+            total_score = ai_contribution + rule_contribution + freq_contribution + trust_contribution + github_contribution
 
             # Ensure score is between 0 and 1
             final_score = max(0.0, min(1.0, total_score))
