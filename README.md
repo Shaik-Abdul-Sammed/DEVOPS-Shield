@@ -15,11 +15,6 @@
 **Team:** DevOps Security Experts  
 **Achievement:** 🥇 **First Place - Security Innovation**
 
-**Team Members:**
-- **Shaik. Muzkeer** - Backend & Security Architecture
-- **Shaik. Abdul Sammed** - Frontend & UI/UX Design
-- **Suhail. B. K** - Blockchain & Integration
-
 ---
 
 ## 🎯 Project Overview
